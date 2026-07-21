@@ -1,0 +1,44 @@
+{
+  "name": "@alipay/alipay-payment-integration",
+  "version": "0.0.16",
+  "description": "支付宝支付能力 skills，帮助开发者快速接入支付宝支付",
+  "type": "module",
+  "bin": {
+    "alipay-payment-integration": "./bin/alipay-payment-integration.js"
+  },
+  "files": [
+    "bin/",
+    "dist/",
+    "alipay-payment-integration/"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "alipay",
+    "payment",
+    "skills",
+    "claude",
+    "ai"
+  ],
+  "author": "Alipay",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "inquirer": "^9.2.15",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1",
+    "semver": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/inquirer": "^9.0.7",
+    "@types/semver": "^7.5.8",
+    "typescript": "^5.3.3"
+  }
+}
