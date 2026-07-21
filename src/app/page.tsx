@@ -147,45 +147,56 @@ export default function HomePage() {
     }
 
     setIsGenerating(true);
-    try {
+    let retryCount = 0;
+    const maxRetries = 2;
+
+    const tryGenerate = async (): Promise<void> => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
-        setIsGenerating(false);
-        setErrors({ submit: '生成超时，请重试（报告生成通常需要 60-120 秒，最长 180 秒）' });
       }, 180000);
 
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          resumeText: resumeText.trim(),
-          targetCity,
-          targetJob: targetJob.trim(),
-        }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
-      const data = await res.json();
-      if (data.success) {
-        sessionStorage.setItem('report', JSON.stringify(data.data));
-        sessionStorage.setItem(
-          'reportMeta',
-          JSON.stringify({ city: targetCity, job: targetJob })
-        );
-        router.push('/report');
-      } else {
-        setErrors({ submit: data.error || '生成失败，请重试' });
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resumeText: resumeText.trim(),
+            targetCity,
+            targetJob: targetJob.trim(),
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        const data = await res.json();
+        if (data.success) {
+          sessionStorage.setItem('report', JSON.stringify(data.data));
+          sessionStorage.setItem(
+            'reportMeta',
+            JSON.stringify({ city: targetCity, job: targetJob })
+          );
+          router.push('/report');
+        } else {
+          throw new Error(data.error || '生成失败');
+        }
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setErrors({ submit: `正在重试... (${retryCount}/${maxRetries})` });
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          await tryGenerate();
+        } else if (err instanceof Error && err.name === 'AbortError') {
+          setErrors({ submit: '生成超时，请重试（报告生成通常需要 60-120 秒）' });
+          setIsGenerating(false);
+        } else {
+          setErrors({ submit: '网络错误，请重试' });
+          setIsGenerating(false);
+        }
       }
-    } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
-        setErrors({ submit: '生成超时，请重试（报告生成通常需要 60-120 秒）' });
-      } else {
-        setErrors({ submit: '网络错误，请重试' });
-      }
-    } finally {
-      setIsGenerating(false);
-    }
+    };
+
+    await tryGenerate();
   };
 
   return (
