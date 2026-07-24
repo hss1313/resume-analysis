@@ -1,0 +1,13 @@
+{
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm dev",
+  "installCommand": "pnpm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "env": {
+    "XUNHU_GATEWAY": "https://api.dpweixin.com/payment/do.html",
+    "XUNHU_APPID": "20211120254",
+    "XUNHU_APPSECRET": "9e192f6937297f9bbcc0423cfa1fc5e4",
+    "NEXT_PUBLIC_BASE_URL": "https://your-domain.vercel.app"
+  }
+}
