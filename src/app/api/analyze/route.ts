@@ -91,7 +91,6 @@ export async function POST(request: NextRequest) {
     const response = await client.invoke(messages, {
       model: 'doubao-seed-2-0-lite-260215',
       temperature: 0.3,
-      timeout: 180000, // 3 分钟超时
     });
 
     // Try to parse the JSON response
